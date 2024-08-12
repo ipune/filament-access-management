@@ -2,6 +2,7 @@
 
 namespace SolutionForest\FilamentAccessManagement\Http\Middleware;
 
+use Filament\Facades\Filament;
 use Illuminate\Auth\Middleware\Authenticate as Middleware;
 use SolutionForest\FilamentAccessManagement\Facades\FilamentAuthenticate;
 use SolutionForest\FilamentAccessManagement\Http\Auth\Permission;
@@ -24,8 +25,8 @@ class Authenticate extends Middleware
         }
     }
 
-    protected function redirectTo($request): string
+    protected function redirectTo($request): ?string
     {
-        return route('filament.auth.login');
+        return Filament::getLoginUrl();
     }
 }

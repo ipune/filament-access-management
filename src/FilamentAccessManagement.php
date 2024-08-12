@@ -3,9 +3,13 @@
 namespace SolutionForest\FilamentAccessManagement;
 
 use Closure;
+use Filament\Facades\Filament;
 use Filament\Navigation\NavigationBuilder;
+use Filament\Navigation\NavigationGroup;
+use Filament\Navigation\NavigationItem;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Cache;
@@ -13,10 +17,6 @@ use Illuminate\Support\Str;
 use SolutionForest\FilamentAccessManagement\Http\Auth\Permission;
 use SolutionForest\FilamentAccessManagement\Support\Menu;
 use SolutionForest\FilamentAccessManagement\Support\Utils;
-use Spatie\Permission\PermissionRegistrar;
-use Filament\Navigation\NavigationGroup;
-use Illuminate\Support\Arr;
-use Filament\Navigation\NavigationItem;
 
 class FilamentAccessManagement
 {
@@ -114,18 +114,23 @@ class FilamentAccessManagement
      */
     public function shouldPassThrough(string|Request $request): bool
     {
-        $excepts = array_unique(
-            array_merge([
-                admin_base_path('/'),
-                admin_base_path('/error*'),
-                'filament/logout',
-                'filament/assets*',
-            ], array_map(
-                fn ($except) => admin_base_path($except),
-                (array) config('filament-access-management.auth.except', [])
+        $fiPanel = Filament::getCurrentPanel();
+
+        $excepts = array_values(Arr::whereNotNull(array_unique(
+            array_merge(
+                [
+                    $fiPanel->getPath(),
+                    (string)str($fiPanel->getPath())->append('/error*'),
+                    $fiPanel->getLoginUrl(),
+                    $fiPanel->getLogoutUrl(),
+                    (string)str($fiPanel->getPath())->append('/assets*'),
+                ],
+                array_map(
+                    fn ($except) => (string)str($fiPanel->getPath())->append($except),
+                    (array) config('filament-access-management.auth.except', [])
+                ),
             )
-            )
-        );
+        )));
 
         $current = is_string($request) ? $request : $request->path();
 
@@ -137,7 +142,9 @@ class FilamentAccessManagement
                 }
             }
 
-            $current = admin_base_path($current);
+            $current = (string)str($fiPanel->getPath())
+                ->append('/')
+                ->append(ltrim($current, '/'));
 
             if (Utils::matchRequestPath($except, $current)) {
                 return true;
