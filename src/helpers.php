@@ -12,6 +12,9 @@ if (! function_exists('filament_auth')) {
     }
 }
 
+/**
+ * @deprecated version 2.2.0
+ */
 if (! function_exists('admin_url')) {
     /**
      * Get admin url.
@@ -31,13 +34,16 @@ if (! function_exists('admin_url')) {
     }
 }
 
+/**
+ * @deprecated version 2.2.0
+ */
 if (! function_exists('admin_base_path')) {
     /**
      * Get admin base path.
      */
-    function admin_base_path($path = '')
+    function admin_base_path($path = '', $panel = null)
     {
-        $prefix = '/'.trim(config('filament.path'), '/');
+        $prefix = '/'.trim(config('filament.path', (filament()->getPanel($panel) ?? filament()->getCurrentPanel() ?? filament()->getDefaultPanel())->getPath()), '/');
 
         $prefix = ($prefix == '/') ? '' : $prefix;
 

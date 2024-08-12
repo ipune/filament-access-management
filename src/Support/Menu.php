@@ -27,10 +27,15 @@ class Menu
         ?string $activeIcon= null,
         ?string $uri= null,
         ?string $badge= null,
-        ?string $badgeColor= null): Model
+        ?string $badgeColor= null,
+        bool $isFilamentPanel= false): Model
     {
         return Utils::getMenuModel()::firstOrCreate(
-            ['title' => $title, 'parent_id' => $parent ?? -1],
+            [
+                'title' => $title,
+                'parent_id' => $parent ?? -1,
+                'is_filament_panel' => $isFilamentPanel,
+            ],
             [
                 'icon' => $icon,
                 'active_icon' => $activeIcon,
@@ -174,22 +179,38 @@ class Menu
         }
 
         $model = app(Utils::getMenuModel());
-
-        $labelColumnName = method_exists($model, 'determineTitleColumnName') ? $model->determineTitleColumnName() : 'title';
-        $iconColumnName = method_exists($model, 'determineIconColumnName') ? $model->determineIconColumnName() : 'icon';
-        $activeIconColumnName = method_exists($model, 'determineActiveIconColumnName') ? $model->determineActiveIconColumnName() : 'active_icon';
-        $uriColumnName = method_exists($model, 'determineUriColumnName') ? $model->determineUriColumnName() : 'uri';
-        $badgeColumnName = method_exists($model, 'determineBadgeColumnName') ? $model->determineBadgeColumnName() : 'badge';
-        $badgeColorColumnName = method_exists($model, 'determineBadgeColorColumnName') ? $model->determineBadgeColorColumnName() : 'badge_color';
-        $orderColumnName = method_exists($model, 'determineOrderColumnName') ? $model->determineOrderColumnName() : FilamentTree\Support\Utils::orderColumnName();
-
         return collect($treeItems)
             ->map(function (array $treeItem) {
                 static::handleTranslatable($treeItem);
                 return $treeItem;
             })
-            ->map(fn (array $treeItem) =>
-                NavigationItem::make()
+            ->map(function (array $treeItem) use ($model) {
+
+                $labelColumnName = method_exists($model, 'determineTitleColumnName') ? $model->determineTitleColumnName() : 'title';
+                $iconColumnName = method_exists($model, 'determineIconColumnName') ? $model->determineIconColumnName() : 'icon';
+                $activeIconColumnName = method_exists($model, 'determineActiveIconColumnName') ? $model->determineActiveIconColumnName() : 'active_icon';
+                $uriColumnName = method_exists($model, 'determineUriColumnName') ? $model->determineUriColumnName() : 'uri';
+                $badgeColumnName = method_exists($model, 'determineBadgeColumnName') ? $model->determineBadgeColumnName() : 'badge';
+                $badgeColorColumnName = method_exists($model, 'determineBadgeColorColumnName') ? $model->determineBadgeColorColumnName() : 'badge_color';
+                $orderColumnName = method_exists($model, 'determineOrderColumnName') ? $model->determineOrderColumnName() : FilamentTree\Support\Utils::orderColumnName();
+
+                $url = trim(($treeItem[$uriColumnName] ?? "/"), '/');
+
+                if (($treeItem['is_filament_panel'] ?? false) == true && $panel = (filament()->getCurrentPanel() ?? filament()->getDefaultPanel())) {
+
+                    $pathInPanel = (string)str($panel->getPath())
+                        ->trim('/')
+                        ->append('/')
+                        ->when($panel->hasTenancy(),
+                            fn ($str) => $str
+                                ->append(filament()->getTenant()?->getKey())
+                                ->append('/'))
+                        ->append($url);
+
+                    $url = url($pathInPanel);
+                }
+
+                return NavigationItem::make()
                     ->label(static::ensureNavigationLabel($treeItem[$labelColumnName]) ?? "")
                     ->group($groupLabel ?? "")
                     ->groupIcon($groupIcon ?? "")
@@ -198,7 +219,7 @@ class Menu
                     ->isActiveWhen(fn (): bool => request()->is(trim(($treeItem[$uriColumnName] ?? "/"), '/')))
                     ->sort(intval($treeItem[$orderColumnName] ?? 0))
                     ->badge(($treeItem[$badgeColumnName] ?? null), color: ($treeItem[$badgeColorColumnName] ?? null))
-                    ->url(admin_url(trim(($treeItem[$uriColumnName] ?? "/"), '/')))
-            )->toArray();
+                    ->url($url);
+            })->toArray();
     }
 }

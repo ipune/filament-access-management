@@ -35,7 +35,20 @@ This is an authentication plugin for Filament Admin with Laravel-permission
     php artisan config:clear
    ```
 
-4. Then execute the following commands:
+
+4. Register the plugin in your Panel provider:
+   > **Important:  Register the plugin in your Panel provider after version 2.x**
+   ``` bash
+    use SolutionForest\FilamentAccessManagement\FilamentAccessManagementPanel;
+ 
+    public function panel(Panel $panel): Panel
+    {
+        return $panel
+            ->plugin(FilamentAccessManagementPanel::make());
+    }
+   ```
+
+5. Then execute the following commands:
    ```bash
    php artisan filament-access-management:install
    ```
@@ -48,23 +61,13 @@ This is an authentication plugin for Filament Admin with Laravel-permission
     You can also create the super admin user with:
 
     ```bash
-
     php artisan make:super-admin-user
-
     ```
 
-5. Register the plugin in your Panel provider:
-   > **Important:  Register the plugin in your Panel provider after version 2.x**
-   ``` bash
-    use SolutionForest\FilamentAccessManagement\FilamentAccessManagementPanel;
- 
-    public function panel(Panel $panel): Panel
-    {
-        return $panel
-            ->plugin(FilamentAccessManagementPanel::make());
-    }
-   ```
-    
+6. Call upgrade command to upgrade data after version **2.2.0**
+    ```bash
+    php artisan filament-access-management:upgrade
+    ```
 
 
 ## Publish Configs, Views, Translations and Migrations

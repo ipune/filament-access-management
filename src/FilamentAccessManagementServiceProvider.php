@@ -54,6 +54,7 @@ class FilamentAccessManagementServiceProvider extends PackageServiceProvider
         return [
             Commands\MakeSuperAdminUser::class,
             Commands\MakeMenu::class,
+            Commands\Upgrade::class,
         ];
     }
 
@@ -61,6 +62,7 @@ class FilamentAccessManagementServiceProvider extends PackageServiceProvider
     {
         return [
             'create_filament_admin_tables',
+            'upgrade_menu_table',
         ];
     }
 
@@ -93,7 +95,7 @@ class FilamentAccessManagementServiceProvider extends PackageServiceProvider
     public function packageBooted(): void
     {
         parent::packageBooted();
-        
+
         if ($this->app->runningInConsole()) {
 
             $configFiles = [

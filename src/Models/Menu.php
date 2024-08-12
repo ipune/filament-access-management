@@ -7,8 +7,6 @@ use Illuminate\Support\Str;
 use SolutionForest\FilamentAccessManagement\Facades\FilamentAuthenticate;
 use SolutionForest\FilamentAccessManagement\Support\Utils;
 use SolutionForest\FilamentTree\Concern\ModelTree;
-use SolutionForest\FilamentTree\Support\Utils as FilamentTreeHelper;
-use Spatie\EloquentSortable\SortableTrait;
 
 class Menu extends Model
 {
@@ -19,16 +17,37 @@ class Menu extends Model
         'icon',
         'active_icon',
         'uri',
+        'is_filament_panel',
         'badge',
         'badge_color',
         'parent_id',
         'order',
     ];
 
+    public $casts = [
+        'is_filament_panel' => 'boolean',
+    ];
+
     public function getNavigationUrl(): ?string
     {
         $uriColumnName = $this->determineUriColumnName();
-        return empty($this->{$uriColumnName}) ? null : admin_url($this->{$uriColumnName});
+        if (empty($this->{$uriColumnName})) {
+            return null;
+        }
+        if ($this->is_filament_panel && $panel = (filament()->getCurrentPanel() ?? filament()->getDefaultPanel())) {
+
+            $pathInPanel = (string)str($panel->getPath())
+                ->trim('/')
+                ->append('/')
+                ->when($panel->hasTenancy(),
+                    fn ($str) => $str
+                        ->append(filament()->getTenant()?->getKey())
+                        ->append('/'))
+                    ->append(trim($this->{$uriColumnName}, '/'));
+
+            return url($pathInPanel);
+        }
+        return $this->{$uriColumnName};
     }
 
     public function determineTitleColumnName() : string
@@ -60,7 +79,6 @@ class Menu extends Model
     {
         return 'badge_color';
     }
-
 
     protected static function boot()
     {

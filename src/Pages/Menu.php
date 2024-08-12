@@ -37,6 +37,10 @@ class Menu extends TreePage
                 ->label(__('filament-access-management::filament-access-management.field.menu.uri'))
                 ->helperText('Relative path or external URL'),
 
+            Forms\Components\Toggle::make('is_filament_panel')
+                ->label(__('filament-access-management::filament-access-management.field.menu.is_filament_panel'))
+                ->inlineLabel(),
+
             IconPicker::make('icon')
                 ->label(__('filament-access-management::filament-access-management.field.menu.icon'))
                 ->preload()

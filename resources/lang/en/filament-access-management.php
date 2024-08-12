@@ -20,6 +20,7 @@ return [
     'field.menu.icon' => 'ICON',
     'field.menu.parent' => 'Parent',
     'field.menu.uri' => 'URI',
+    'field.menu.is_filament_panel' => 'Filament Panel?',
 
     'field.guard_name' => 'Guard Name',
     'field.title' => 'Title',
