@@ -11,12 +11,13 @@ This is an authentication plugin for Filament Admin with Laravel-permission
 
 ## Installation
 
-1. You can install the package via composer:
+1. Ensure you have already installed the Filament panel.
+2. You can install the package via composer:
     ```bash
     composer require solution-forest/filament-access-management
     ```
     
-2. Add the necessary trait to your User model:
+3. Add the necessary trait to your User model:
 
     ```php
 
@@ -28,15 +29,14 @@ This is an authentication plugin for Filament Admin with Laravel-permission
     }
     ```
     
-3. **Clear your config cache**:
+4. **Clear your config cache**:
    ```bash
     php artisan optimize:clear
     # or
     php artisan config:clear
    ```
 
-
-4. Register the plugin in your Panel provider:
+5. Register the plugin in your Panel provider:
    > **Important:  Register the plugin in your Panel provider after version 2.x**
    ``` bash
     use SolutionForest\FilamentAccessManagement\FilamentAccessManagementPanel;
@@ -48,7 +48,7 @@ This is an authentication plugin for Filament Admin with Laravel-permission
     }
    ```
 
-5. Then execute the following commands:
+6. Then execute the following commands:
    ```bash
    php artisan filament-access-management:install
    ```
