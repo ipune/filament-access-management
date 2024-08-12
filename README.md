@@ -111,7 +111,19 @@ Manage Permissions:
 ![image](https://user-images.githubusercontent.com/73818060/232438632-e5d9a5e5-7ef5-4ca5-a330-37948acd9748.png)
 ![image](https://user-images.githubusercontent.com/73818060/232438719-fc2bca0b-7233-4aae-bf87-9c1d8524e42d.png)
 
+## Routing control
 
+In this plugin, permissions and routes are bound together, set the routes that the current permissions can access in the edit permissions page, select the method to access the routes in the `HTTP method` select box, and fill in the path that can be accessed in the `HTTP path`.
+
+For example, if you want to add a permission, which can access the path `/admin/users` by `GET`, then `HTTP method` select `GET`, and `HTTP path` fill in `/users`.
+
+
+If you want to access all the paths prefixed with `/admin/users`, then `HTTP path` fill in `/users*`; if you want to access the edit page, then `HTTP path` fill in `/users/*/edit`; if the method of each path in multiple paths is different, then `HTTP path` fill in `GET:users/*'. `.
+
+
+If the above method is not sufficient, `HTTP path` also supports **routing aliases**, such as `admin.users.show`.
+
+## Super Administrator
 
 Create super admin user:
 
