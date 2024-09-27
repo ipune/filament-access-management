@@ -12,6 +12,14 @@ trait FilamentUserHelpers
 {
     use HasRoles;
 
+    private $_hasTableRole;
+    
+    public function hasTableRole() {
+        $this->_hasTableRole = $this->_hasTableRole ?: Schema::hasTable(Utils::getRoleTableName());
+        return $this->_hasTableRole;
+    }
+
+
     public function getTable()
     {
         return Utils::getUserTableName() ?? parent::getTable();
@@ -24,7 +32,7 @@ trait FilamentUserHelpers
 
     public function isSuperAdmin(): bool
     {
-        if (! Schema::hasTable(Utils::getRoleTableName())) {
+        if (! $this->hasTableRole()) {
             return false;
         }
 
